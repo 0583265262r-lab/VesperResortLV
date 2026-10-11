@@ -1,0 +1,13 @@
+**
+!frontend/
+!frontend/hotel-web/
+!frontend/hotel-web/**
+!infrastructure/
+!infrastructure/nginx/
+!infrastructure/nginx/default.conf
+frontend/hotel-web/node_modules/
+frontend/hotel-web/dist/
+frontend/hotel-web/.env*
+frontend/hotel-web/test-results/
+frontend/hotel-web/playwright-report/
+
