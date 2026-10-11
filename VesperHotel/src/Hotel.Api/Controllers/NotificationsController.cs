@@ -1,28 +1,70 @@
 using System.Security.Claims;
-using Hotel.Domain;
-using Hotel.Infrastructure;
+using Hotel.Api.Data;
+using Hotel.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Api.Controllers;
 
-[ApiController, Authorize, Route("api/notifications")]
+[ApiController]
+[Authorize]
+[Route("api/notifications")]
 public class NotificationsController : ControllerBase
 {
-    private readonly HotelDbContext db;
-    public NotificationsController(HotelDbContext db) { this.db = db; }
-    [HttpGet] public async Task<object> List()
+    private readonly HotelDbContext _db;
+
+    public NotificationsController(HotelDbContext db)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        return await db.Notifications.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x => x.CreatedAtUtc).Take(100)
-            .Select(x => new { x.Id, x.Subject, x.Message, x.CreatedAtUtc, x.IsRead }).ToListAsync();
+        _db = db;
     }
-    [HttpPost("{id}/read")] public async Task<IActionResult> Read(string id)
+
+    [HttpGet]
+    public async Task<object> GetNotifications()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        await using var write = await DatabaseWrite.BeginAsync(db, "system");
-        var notification = await db.Notifications.SingleOrDefaultAsync(x => x.Id == id && x.UserId == userId) ?? throw new HotelException(404, "notification_not_found", "Notification not found.");
-        notification.IsRead = true; await db.SaveChangesAsync(); await write.CommitAsync(); return NoContent();
+        var userId = GetUserId();
+
+        return await _db.Notifications
+            .AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Take(100)
+            .Select(x => new
+            {
+                x.Id,
+                x.Subject,
+                x.Message,
+                x.CreatedAtUtc,
+                x.IsRead
+            })
+            .ToListAsync();
+    }
+
+    [HttpPost("{id}/read")]
+    public async Task<IActionResult> MarkAsRead(string id)
+    {
+        var userId = GetUserId();
+
+        var notification = await _db.Notifications
+            .SingleOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+        if (notification == null)
+        {
+            throw new HotelException(
+                404,
+                "notification_not_found",
+                "Notification not found."
+            );
+        }
+
+        notification.IsRead = true;
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private string GetUserId()
+    {
+        return User.FindFirstValue(ClaimTypes.NameIdentifier)!;
     }
 }

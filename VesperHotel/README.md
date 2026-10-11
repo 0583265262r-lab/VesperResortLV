@@ -76,13 +76,13 @@ pwsh -File scripts/start-local.ps1
 
 ## מאיפה להתחיל לקרוא את הקוד
 
-1. `src/Hotel.Domain` — האובייקטים והכללים הבסיסיים.
-2. `src/Hotel.Infrastructure/HotelDbContext.cs` — הטבלאות והקשרים.
-3. `src/Hotel.Infrastructure/CatalogService.cs` — חיפוש וזמינות.
-4. `src/Hotel.Infrastructure/BookingService.cs` — תהליך יצירת הזמנה ושינוי הסטטוס.
-5. `src/Hotel.Infrastructure/DatabaseWrite.cs` — מנגנון הטרנזקציה והנעילה.
-6. `src/Hotel.Api` — נקודות הכניסה מהאתר וההרשאות.
-7. `src/Hotel.Infrastructure/LocalHotelWorker.cs` — עבודות רקע במצב המקומי; `HotelWorker.cs` מקושר לפרויקט ה־Worker ומוסיף Kafka ו־Elasticsearch.
+1. `src/Hotel.Api/Models` — האובייקטים, בקשות ה־API וכללי ההזמנה.
+2. `src/Hotel.Api/Data` — ה־DbContext, הטבלאות, הנתונים הראשוניים והטרנזקציה.
+3. `src/Hotel.Api/Services/CatalogService.cs` — חיפוש וזמינות.
+4. `src/Hotel.Api/Services/BookingService.cs` — יצירת הזמנה ושינוי הסטטוס.
+5. `src/Hotel.Api/Controllers` — הכתובות שהאתר פונה אליהן וההרשאות.
+6. `src/Hotel.Api/Program.cs` — רישום כל השירותים והפעלת השרת.
+7. `src/Hotel.Worker` — עבודות הרקע, Kafka ו־Elasticsearch.
 8. `frontend/hotel-web/src` — מסכי האתר וחיבורם ל־API.
 
 [מדריך קריאת הבקנד](docs/csharp-guide.md) מסביר את חלוקת האחריות ואת ההבדלים מהפרויקט ששימש כדוגמה.
@@ -97,7 +97,7 @@ node tests/api-smoke.mjs
 
 הבדיקה יוצרת חשבונות ומלאי בדיקה, בודקת הרשאות, מחיר שננעל, בקשות חוזרות ומלאי מקביל, ומכבה בסיום את משאבי הבדיקה. אין להריץ אותה על מלון פעיל. תוצאות האימות בפועל מפורטות ב־`docs/verification.md`.
 
-ל־SQLite ול־MySQL יש migrations נפרדים כדי שכל מסד יקבל טיפוסים ותחביר שמתאימים לו. מיגרציות SQLite נמצאות ב־`src/Hotel.Infrastructure/Migrations`, ומיגרציות MySQL ב־`src/Hotel.Migrations.MySql/Migrations`.
+מיגרציות MySQL נמצאות ב־`src/Hotel.Api/Migrations`. במצב הפיתוח המקומי SQLite נוצר אוטומטית באמצעות `EnsureCreated`, ולכן אין פרויקט migrations נוסף.
 
 ## פרטים תפעוליים
 

@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hotel.Infrastructure\Hotel.Infrastructure.csproj" />
-    <Compile Include="..\Hotel.Infrastructure\HotelWorker.cs" Link="HotelWorker.cs" />
+    <ProjectReference Include="..\Hotel.Api\Hotel.Api.csproj" />
     <PackageReference Include="Confluent.Kafka" Version="2.16.0" />
   </ItemGroup>
 </Project>

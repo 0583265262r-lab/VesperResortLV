@@ -1,4 +1,4 @@
-using Hotel.Infrastructure;
+using Hotel.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.Api.Controllers;
@@ -7,14 +7,41 @@ namespace Hotel.Api.Controllers;
 [Route("api/weather")]
 public class WeatherController : ControllerBase
 {
-    private readonly WeatherService weather;
-    public WeatherController(WeatherService weather) { this.weather = weather; }
+    private readonly WeatherService _weatherService;
+
+    public WeatherController(WeatherService weatherService)
+    {
+        _weatherService = weatherService;
+    }
 
     [HttpGet]
-    public async Task<ActionResult<WeatherResponse>> Get(CancellationToken cancellationToken)
+    public async Task<ActionResult<WeatherResponse>> GetWeather(
+        CancellationToken cancellationToken)
     {
-        try { return Ok(await weather.GetLasVegasAsync(cancellationToken)); }
-        catch (HttpRequestException) { return StatusCode(503, new { code = "weather_unavailable", message = "Las Vegas weather is temporarily unavailable." }); }
-        catch (TaskCanceledException) { return StatusCode(503, new { code = "weather_unavailable", message = "Las Vegas weather is temporarily unavailable." }); }
+        try
+        {
+            var weather = await _weatherService.GetLasVegasAsync(
+                cancellationToken
+            );
+
+            return Ok(weather);
+        }
+        catch (HttpRequestException)
+        {
+            return WeatherUnavailable();
+        }
+        catch (TaskCanceledException)
+        {
+            return WeatherUnavailable();
+        }
+    }
+
+    private ObjectResult WeatherUnavailable()
+    {
+        return StatusCode(503, new
+        {
+            code = "weather_unavailable",
+            message = "Las Vegas weather is temporarily unavailable."
+        });
     }
 }
